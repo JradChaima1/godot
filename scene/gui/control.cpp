@@ -4529,6 +4529,25 @@ bool Control::is_layout_rtl() const {
 					data.is_rtl = parent_window->is_layout_rtl();
 					return data.is_rtl;
 				}
+
+#ifdef TOOLS_ENABLED
+				if (is_part_of_edited_scene()) {
+					Node *edited_scene_root = get_tree()->get_edited_scene_root();
+					if (parent_node == edited_scene_root) {
+						int proj_root_layout_direction = GLOBAL_GET_CACHED(int, "internationalization/rendering/root_node_layout_direction");
+						if (proj_root_layout_direction == 1) {
+							data.is_rtl = false;
+						} else if (proj_root_layout_direction == 2) {
+							data.is_rtl = true;
+						} else if (proj_root_layout_direction == 3) {
+							data.is_rtl = TS->is_locale_right_to_left(OS::get_singleton()->get_locale());
+						} else {
+							data.is_rtl = TS->is_locale_right_to_left(_get_locale());
+						}
+						return data.is_rtl;
+					}
+				}
+#endif
 				parent_node = parent_node->get_parent();
 			}
 
