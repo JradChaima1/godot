@@ -4531,7 +4531,19 @@ bool Control::is_layout_rtl() const {
 				}
 				parent_node = parent_node->get_parent();
 			}
-
+#ifdef TOOLS_ENABLED
+		if (is_part_of_edited_scene()) {
+			int proj_root_layout_direction = GLOBAL_GET_CACHED(int, "internationalization/rendering/root_node_layout_direction");
+			if (proj_root_layout_direction == 1) {
+				data.is_rtl = false;
+			} else if (proj_root_layout_direction == 2) {
+				data.is_rtl = true;
+			} else if (proj_root_layout_direction == 3) {
+				data.is_rtl = TS->is_locale_right_to_left(OS::get_singleton()->get_locale());
+			} else {
+				data.is_rtl = TS->is_locale_right_to_left(_get_locale());
+			}
+		} else {
 			if (root_layout_direction == 1) {
 				data.is_rtl = false;
 			} else if (root_layout_direction == 2) {
@@ -4542,6 +4554,20 @@ bool Control::is_layout_rtl() const {
 			} else {
 				data.is_rtl = TS->is_locale_right_to_left(_get_locale());
 			}
+		}
+#else
+		if (root_layout_direction == 1) {
+			data.is_rtl = false;
+		} else if (root_layout_direction == 2) {
+			data.is_rtl = true;
+		} else if (root_layout_direction == 3) {
+			String locale = OS::get_singleton()->get_locale();
+			data.is_rtl = TS->is_locale_right_to_left(locale);
+		} else {
+			data.is_rtl = TS->is_locale_right_to_left(_get_locale());
+		}
+#endif
+
 		} else if (data.layout_dir == LAYOUT_DIRECTION_APPLICATION_LOCALE) {
 			if (GLOBAL_GET_CACHED(bool, "internationalization/rendering/force_right_to_left_layout_direction")) {
 				data.is_rtl = true;
